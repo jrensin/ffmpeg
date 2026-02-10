@@ -87,14 +87,6 @@ function probeDuration(filePath) {
     return 0;
   }
 }
-
-function getCaptionStyle(styleName) {
-  const styles = {
-    just_text: "FontName=Inter,FontSize=22,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BorderStyle=1,Outline=3,Shadow=0,MarginV=40",
-    line_box: "FontName=Inter,FontSize=22,PrimaryColour=&H00FFFFFF,BackColour=&H99000000,BorderStyle=4,Outline=0,Shadow=0,MarginV=40",
-    word_box: "FontName=Inter,FontSize=22,PrimaryColour=&H00FFFFFF,BackColour=&HB3000000,BorderStyle=4,Outline=0,Shadow=0,MarginV=40"
-  };
-  return styles[styleName] || styles.line_box;
 }
 
 function writeRenderLog(generationId, logData) {
@@ -134,7 +126,7 @@ async function handleRender(req, res) {
     music_segments,
     music_volume,
     caption_file_url,
-    caption_style,
+    force_style,
     generation_id,
     b2_path,
     b2_bucket
@@ -191,7 +183,7 @@ async function handleRender(req, res) {
     }
 
     const captionsPath = path.join(tempDir, 'captions.srt');
-    const hasCaptions = caption_file_url && caption_style && caption_style !== 'none';
+    const hasCaptions = caption_file_url && force_style;
     if (hasCaptions) {
       downloads.push(
         downloadFile(caption_file_url, captionsPath)
@@ -306,8 +298,7 @@ async function handleRender(req, res) {
     let videoFilter = '';
     if (hasCaptions) {
       const escapedSrtPath = captionsPath.replace(/'/g, "'\\''").replace(/:/g, '\\:');
-      const styleStr = getCaptionStyle(caption_style);
-      videoFilter = `-vf "subtitles='${escapedSrtPath}':force_style='${styleStr}'"`;
+      videoFilter = `-vf "subtitles='${escapedSrtPath}':force_style='${force_style}'"`;
     }
 
     const finalArgs = [
