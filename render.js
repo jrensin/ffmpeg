@@ -87,7 +87,6 @@ function probeDuration(filePath) {
     return 0;
   }
 }
-}
 
 function writeRenderLog(generationId, logData) {
   const logPath = path.join(RENDER_LOGS_DIR, `renderlog_${generationId}.json`);
